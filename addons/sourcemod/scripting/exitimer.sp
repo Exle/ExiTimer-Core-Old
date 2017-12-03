@@ -43,9 +43,9 @@
 
 bool ExiVar_Started, ExiVar_Enabled;
 
-Handle ExiForward_OnStart,
-	ExiForward_OnEnd,
-	ExiForward_OnChangeState;
+Handle	ExiForward_OnStart,
+		ExiForward_OnEnd,
+		ExiForward_OnChangeState;
 
 #include "exitimer/map.sp"
 #include "exitimer/db.sp"
@@ -107,6 +107,7 @@ public void OnPluginEnd()
 {
 	delete ExiForward_OnStart;
 	delete ExiForward_OnEnd;
+	delete ExiForward_OnChangeState;
 
 	ExiDB_OnPluginEnd();
 	ExiMap_OnPluginEnd();

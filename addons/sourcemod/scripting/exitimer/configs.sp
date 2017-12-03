@@ -39,13 +39,7 @@ void ExiConfigs_AskPluginLoad2()
 void ExiConfigs_OnPluginStart()
 {
 	char buffer[PLATFORM_MAX_PATH];
-	ExiConfigs_GetConfigFile("core", buffer, PLATFORM_MAX_PATH);
-	if (!FileExists(buffer))
-	{
-		ExiLog_Write(true, "[ExiConfigs] Config file \'%s\' not found", buffer);
-		SetFailState("[ExiConfigs] Config file \'%s\' not found", buffer);
-	}
-	else if (!ExiConfigs_LoadConfiguration(buffer))
+	if (!ExiConfigs_GetConfigFile("core", buffer, PLATFORM_MAX_PATH) || !FileExists(buffer) || !ExiConfigs_LoadConfiguration(buffer))
 	{
 		ExiLog_Write(true, "[ExiConfigs] Error parse in \'%s\'", buffer);
 		SetFailState("[ExiConfigs] Error parse in \'%s\'", buffer);
@@ -67,12 +61,12 @@ bool ExiConfigs_LoadConfiguration(const char[] buffer)
 	SMCError results = parser.ParseFile(buffer, line, column);
 
 	if (results != SMCError_Okay) 
-    {
+	{
 		char error[256];
 		parser.GetErrorString(results, error, 256);
-		ExiLog_Write(true, "[ExiConfigs] Error: %s on line %d, column %d", error, line, column, buffer);
-        LogError("[ExiConfigs] Error: %s on line %d, column %d", error, line, column, buffer);
-    }
+		ExiLog_Write(true, "[ExiConfigs] Error: %s on line %d, column %d in \'%s\'", error, line, column, buffer);
+		LogError("[ExiConfigs] Error: %s on line %d, column %d in \'%s\'", error, line, column, buffer);
+	}
 
 	delete parser;
 	return (results == SMCError_Okay);
@@ -80,12 +74,12 @@ bool ExiConfigs_LoadConfiguration(const char[] buffer)
 
 public SMCResult ExiConfigs_ParserOnKeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
 {
-	if (strcmp(key, "db_prefix", false) == 0)
-    {
+	if (!strcmp(key, "db_prefix", false))
+	{
 		strcopy(ExiVar_DBPrefix, 16, value);
-    }
+	}
 
-    return SMCParse_Continue;
+	return SMCParse_Continue;
 }
 
 public void ExiConfigs_ParserOnEnd(SMCParser smc, bool halted, bool failed)
