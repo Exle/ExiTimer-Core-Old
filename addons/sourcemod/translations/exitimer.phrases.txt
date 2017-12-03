@@ -1,0 +1,33 @@
+"Phrases"
+{
+	"Timer Management"
+	{
+        "en"	"Timer Commands"
+		"ru"	"Управление таймером"
+	}
+
+	"Timer_Settings"
+	{
+        "en"	"Timer settings"
+		"ru"	"Настройки таймера"
+	}
+
+
+	"Empty Menu"
+	{
+        "en"	"Nothing found in menu"
+		"ru"	"В меню ничего не найдено"
+	}
+
+	"Enable"
+	{
+        "en"	"Enable"
+		"ru"	"Включить"
+	}
+
+	"Disable"
+	{
+        "en"	"Disable"
+		"ru"	"Отключить"
+	}
+}
