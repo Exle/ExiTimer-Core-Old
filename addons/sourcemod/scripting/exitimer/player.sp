@@ -49,6 +49,7 @@ void ExiPlayer_AskPluginLoad2()
 {
 	CreateNative("ExiTimer_StartTimer",		NativePlayer_StartTimer);
 	CreateNative("ExiTimer_StopTimer",		NativePlayer_StopTimer);
+	CreateNative("ExiTimer_GetTimerTime",	NativePlayer_GetTimerTime);
 	CreateNative("ExiTimer_PauseTimer",		NativePlayer_PauseTimer);
 	CreateNative("ExiTimer_UnPauseTimer",	NativePlayer_UnPauseTimer);
 }
@@ -122,6 +123,13 @@ float ExiPlayer_StopTimer(int client, bool finished = true)
 	return time;
 }
 
+float ExiPlayer_GetTimerTime(int client)
+{
+	return player[client][Player_Time] == -1.0 ? -1.0 :
+		player[client][Player_Pause] == -1.0 ? player[client][Player_Time] - player[client][Player_Pause] :
+			GetEngineTime() - player[client][Player_Time];
+}
+
 void ExiPlayer_PauseTimer(int client)
 {
 	if (player[client][Player_Pause] != -1.0)
@@ -166,6 +174,11 @@ public int NativePlayer_StartTimer(Handle plugin, int numParams)
 public int NativePlayer_StopTimer(Handle plugin, int numParams)
 {
 	return view_as<int>(ExiPlayer_StopTimer(GetNativeCell(1), view_as<bool>(GetNativeCell(2))));
+}
+
+public int NativePlayer_GetTimerTime(Handle plugin, int numParams)
+{
+	return view_as<int>(ExiPlayer_GetTimerTime(GetNativeCell(1)));
 }
 
 public int NativePlayer_PauseTimer(Handle plugin, int numParams)

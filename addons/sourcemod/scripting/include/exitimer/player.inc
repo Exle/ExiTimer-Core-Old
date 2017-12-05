@@ -43,6 +43,7 @@ forward void ExiTimer_OnClientUnPaused(int client, float time, float time_paused
 
 native void ExiTimer_StartTimer(int client);
 native float ExiTimer_StopTimer(int client, bool finished = true);
+native float ExiTimer_GetTimerTime(int client);
 native void ExiTimer_PauseTimer(int client);
 native void ExiTimer_UnPauseTimer(int client);
 
@@ -62,6 +63,7 @@ public __pl_exitimer_player_SetNTVOptional()
 {
 	MarkNativeAsOptional("ExiTimer_StartTimer");
 	MarkNativeAsOptional("ExiTimer_StopTimer");
+	MarkNativeAsOptional("ExiTimer_GetTimerTime");
 	MarkNativeAsOptional("ExiTimer_PauseTimer");
 	MarkNativeAsOptional("ExiTimer_UnPauseTimer");
 }

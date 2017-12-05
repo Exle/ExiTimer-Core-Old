@@ -64,7 +64,7 @@ public SharedPlugin __pl_exitimer_menu =
 };
 
 #if !defined REQUIRE_PLUGIN
-public __pl_exitimer_mmenu_SetNTVOptional()
+public __pl_exitimer_menu_SetNTVOptional()
 {
 	MarkNativeAsOptional("ExiTimer_ReDisplayAdminMenu");
 	MarkNativeAsOptional("ExiTimer_ReDisplayClientMenu");

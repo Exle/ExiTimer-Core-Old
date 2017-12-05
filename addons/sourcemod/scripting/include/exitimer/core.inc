@@ -62,7 +62,7 @@ public __pl_exitimer_core_SetNTVOptional()
 {
 	MarkNativeAsOptional("ExiTimer_IsStarted");
 	MarkNativeAsOptional("ExiTimer_IsEnabled");
-	MarkNativeAsOptional("ExiTimer_GetDirectory");
 	MarkNativeAsOptional("ExiTimer_SetState");
+	MarkNativeAsOptional("ExiTimer_GetDirectory");
 }
 #endif
