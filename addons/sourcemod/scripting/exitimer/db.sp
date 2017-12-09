@@ -31,8 +31,8 @@
  * Version: $Id$
  */
 
-#define TABLE_MAP_MYSQL		"CREATE TABLE IF NOT EXISTS %smaps (id int(8) NOT NULL AUTO_INCREMENT, name varchar(64) NOT NULL UNIQUE, work bit NOT NULL DEFAULT 1, PRIMARY KEY (id), UNIQUE KEY (name)) ENGINE=MyISAM DEFAULT CHARSET=utf8;"
-#define TABLE_MAP_SQLITE	"CREATE TABLE IF NOT EXISTS %smaps (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR NOT NULL UNIQUE, work BIT NOT NULL DEFAULT 1);"
+#define TABLE_MAP_MYSQL		"CREATE TABLE IF NOT EXISTS %smaps (id int(8) NOT NULL AUTO_INCREMENT, name varchar(64) NOT NULL UNIQUE, state bit NOT NULL DEFAULT 1, PRIMARY KEY (id), UNIQUE KEY (name)) ENGINE=MyISAM DEFAULT CHARSET=utf8;"
+#define TABLE_MAP_SQLITE	"CREATE TABLE IF NOT EXISTS %smaps (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR NOT NULL UNIQUE, state BIT NOT NULL DEFAULT 1);"
 
 Database ExiDB;
 ExiTimerDB_Type ExiDB_Type;
@@ -174,7 +174,7 @@ void ExiDB_OnMapStart()
 	ExiDB.Escape(ExiVar_MapName, smap, tmp);
 
 	char query[256];
-	FormatEx(query, 256, "SELECT id, work FROM %smaps WHERE name = '%s';", ExiVar_DBPrefix, smap);
+	FormatEx(query, 256, "SELECT id, state FROM %smaps WHERE name = '%s';", ExiVar_DBPrefix, smap);
 
 	ExiDB.Query(ExiDB_OnMapStartCallback, query);
 }
@@ -217,26 +217,8 @@ public void ExiDB_OnMapStartInsertCallback(Database db, DBResultSet results, con
 void ExiDB_ChangeState(bool state)
 {
 	char query[256];
-	FormatEx(query, 256, "UPDATE %smaps SET work = %d WHERE id = %d;", ExiVar_DBPrefix, state, ExiVar_MapId);
-	ExiDB.Query(ExiDB_OnChangeState, query, state);
-}
-
-public void ExiDB_OnChangeState(Database db, DBResultSet results, const char[] error, any data)
-{
-	if (db == null || error[0])
-	{
-		if (db == null)
-		{
-			ExiDB_PreReconnectTimer(0, "Database INVALID HANDLE");
-			return;
-		}
-
-		LogError("[DB] Error [data %d]: %s", data, error);
-		ExiLog_Write(true, "[DB] Error [data %d]: %s", data, error);
-		return;
-	}
-
-	ExiFunctions_TimerState(view_as<bool>(data));
+	FormatEx(query, 256, "UPDATE %smaps SET state = %d WHERE id = %d;", ExiVar_DBPrefix, state, ExiVar_MapId);
+	ExiDB_TQueryEx(query);
 }
 
 stock void ExiDB_TQueryEx(const char[] query, DBPriority prio = DBPrio_Normal, any data = 0)

@@ -167,7 +167,7 @@ public int ExiMenu_Handle(Menu menu, MenuAction action, int param1, int param2)
 
 			if (!menuid && !param2)
 			{
-				ExiDB_ChangeState((ExiVar_Enabled = !ExiVar_Enabled));
+				ExiFunctions_TimerState((ExiVar_Enabled = !ExiVar_Enabled));
 				ExiMenu_ReDisplayMenu(menuid, param1);
 				return;
 			}
