@@ -74,9 +74,13 @@ bool ExiConfigs_LoadConfiguration(const char[] buffer)
 
 public SMCResult ExiConfigs_ParserOnKeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
 {
-	if (!strcmp(key, "db_prefix", false))
+	if (!strcmp("db_prefix", key))
 	{
 		strcopy(ExiVar_DBPrefix, 16, value);
+	}
+	else if (!strcmp("chat_prefix", key))
+	{
+		strcopy(ExiVar_ChatPrefix, 64, value);
 	}
 
 	return SMCParse_Continue;

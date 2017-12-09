@@ -115,7 +115,7 @@ void ExiMenu_ReDisplayMenu(int menuid, int client)
 {
 	if (ExiMenu[menuid].Length == 0)
 	{
-		ReplyToCommand(client, "%s %t", EXICHATNAME, "Empty Menu");
+		ReplyToCommand(client, "%s %t", ExiVar_ChatPrefix, "Empty Menu");
 		return;
 	}
 

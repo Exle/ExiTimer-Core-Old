@@ -218,7 +218,25 @@ void ExiDB_ChangeState(bool state)
 {
 	char query[256];
 	FormatEx(query, 256, "UPDATE %smaps SET work = %d WHERE id = %d;", ExiVar_DBPrefix, state, ExiVar_MapId);
-	ExiDB_TQueryEx(query);
+	ExiDB.Query(ExiDB_OnChangeState, query, state);
+}
+
+public void ExiDB_OnChangeState(Database db, DBResultSet results, const char[] error, any data)
+{
+	if (db == null || error[0])
+	{
+		if (db == null)
+		{
+			ExiDB_PreReconnectTimer(0, "Database INVALID HANDLE");
+			return;
+		}
+
+		LogError("[DB] Error [data %d]: %s", data, error);
+		ExiLog_Write(true, "[DB] Error [data %d]: %s", data, error);
+		return;
+	}
+
+	ExiFunctions_TimerState(view_as<bool>(data));
 }
 
 stock void ExiDB_TQueryEx(const char[] query, DBPriority prio = DBPrio_Normal, any data = 0)

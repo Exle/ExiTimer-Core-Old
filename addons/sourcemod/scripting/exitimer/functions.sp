@@ -69,14 +69,9 @@ void ExiFunctions_MapState(bool start = true)
 	}
 }
 
-void ExiFunctions_TimerState(bool start = true, bool update = false)
+void ExiFunctions_TimerState(bool start = true)
 {
-	ExiVar_Enabled = start;
-
-	if (update)
-	{
-		ExiDB_ChangeState(ExiVar_Enabled);
-	}
+	ExiDB_ChangeState((ExiVar_Enabled = start));
 
 	Call_StartForward(ExiForward_OnChangeState);
 	Call_PushCell(ExiVar_Enabled);

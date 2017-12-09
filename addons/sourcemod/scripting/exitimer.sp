@@ -43,6 +43,8 @@
 
 bool ExiVar_Started, ExiVar_Enabled;
 
+char ExiVar_ChatPrefix[64] = "\x03[\x04ExiTimer\x03]\x01";
+
 Handle	ExiForward_OnStart,
 		ExiForward_OnEnd,
 		ExiForward_OnChangeState;
@@ -61,7 +63,7 @@ public Plugin myinfo =
 	name		= EXITIMER_NAME ... " Core",
 	author		= EXITIMER_AUTHOR,
 	description	= EXITIMER_DESCRIPTION,
-	version		= EXITIMER_VERSION,
+	version		= EXITIMER_VERSION ... "-beta",
 	url			= EXITIMER_URL
 };
 
@@ -71,6 +73,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("ExiTimer_IsEnabled",		Native_Enabled);
 	CreateNative("ExiTimer_SetState",		Native_SetState);
 	CreateNative("ExiTimer_GetDirectory",	Native_GetDirectory);
+	CreateNative("ExiTimer_GetChatPrefix",	Native_GetChatPrefix);
 
 	ExiConfigs_AskPluginLoad2();
 	ExiDB_AskPluginLoad2();
@@ -158,4 +161,10 @@ public int Native_GetDirectory(Handle plugin, int numParams)
 	int cells = BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, DIR ... "%s", buffer);
 	SetNativeString(2, buffer, GetNativeCell(3));
 	return cells;
+}
+
+public int Native_GetChatPrefix(Handle plugin, int numParams)
+{
+	SetNativeString(1, ExiVar_ChatPrefix, GetNativeCell(2));
+	return strlen(ExiVar_ChatPrefix);
 }

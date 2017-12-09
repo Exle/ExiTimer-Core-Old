@@ -35,8 +35,6 @@
 #endif
 #define _exitimer_core_included
 
-#define EXICHATNAME "\x03[\x04ExiTimer\x03]\x01"
-
 forward void ExiTimer_OnStart();
 forward void ExiTimer_OnEnd();
 forward void ExiTimer_OnChangeState(bool state);
@@ -45,6 +43,7 @@ native bool ExiTimer_IsStarted();
 native bool ExiTimer_IsEnabled();
 native void ExiTimer_SetState(bool state);
 native int ExiTimer_GetDirectory(const char[] name, char[] buffer, int maxlength);
+native int ExiTimer_GetChatPrefix(char[] buffer, int maxlength);
 
 public SharedPlugin __pl_exitimer_core = 
 {
