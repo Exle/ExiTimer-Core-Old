@@ -51,48 +51,21 @@ int ExiConfigs_GetConfigFile(const char[] name, char[] buffer, int maxlength)
 	return BuildPath(Path_SM, buffer, maxlength, "%sconfigs/%s.exitimer.cfg", DIR, name);
 }
 
-bool ExiConfigs_LoadConfiguration(const char[] buffer)
+bool ExiConfigs_LoadConfiguration(const char[] path)
 {
-	SMCParser parser = new SMCParser();
-	parser.OnKeyValue	= ExiConfigs_ParserOnKeyValue;
-	parser.OnEnd		= ExiConfigs_ParserOnEnd;
-
-	int line, column;
-	SMCError results = parser.ParseFile(buffer, line, column);
-
-	if (results != SMCError_Okay) 
+	KeyValues kv = new KeyValues("Core");
+	if (!kv.ImportFromFile(path))
 	{
-		char error[256];
-		parser.GetErrorString(results, error, 256);
-		ExiLog_Write(true, "[ExiConfigs] Error: %s on line %d, column %d in \'%s\'", error, line, column, buffer);
-		LogError("[ExiConfigs] Error: %s on line %d, column %d in \'%s\'", error, line, column, buffer);
+		return false;
 	}
 
-	delete parser;
-	return (results == SMCError_Okay);
-}
+	kv.GotoFirstSubKey();
 
-public SMCResult ExiConfigs_ParserOnKeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
-{
-	if (!strcmp("db_prefix", key))
-	{
-		strcopy(ExiVar_DBPrefix, 16, value);
-	}
-	else if (!strcmp("chat_prefix", key))
-	{
-		strcopy(ExiVar_ChatPrefix, 64, value);
-	}
+	kv.GetString("db_prefix", ExiVar_DBPrefix, 16, ExiVar_DBPrefix);
+	kv.GetString("chat_prefix", ExiVar_ChatPrefix, 64, ExiVar_ChatPrefix);
 
-	return SMCParse_Continue;
-}
-
-public void ExiConfigs_ParserOnEnd(SMCParser smc, bool halted, bool failed)
-{
-	if (failed)
-	{
-		ExiLog_Write(true, "[ExiConfigs] Error parse configuration file");
-		SetFailState("[ExiConfigs] Error parse configuration file");
-	}
+	delete kv;
+	return true;
 }
 
 // NATIVES

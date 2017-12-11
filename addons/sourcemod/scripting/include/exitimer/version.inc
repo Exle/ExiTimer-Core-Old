@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 03.12.2017
+ * Date of update: 11.12.2017
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -30,6 +30,11 @@
  * Version: $Id$
  */
 
+#if defined exitimer_version_included
+	#endinput
+#endif
+#define _exitimer_version_included
+
 #define EXITIMER_NAME			"[ExiTimer]"
 #define EXITIMER_AUTHOR			"Exle"
 #define EXITIMER_DESCRIPTION	"Timer"
@@ -38,6 +43,6 @@
 #define EXITIMER_V_MAJOR		1
 #define EXITIMER_V_MINOR		0
 #define EXITIMER_V_RELEASE		0
-#define EXITIMER_V_REV	    	6
+#define EXITIMER_V_REV	    	7
 
-#define EXITIMER_VERSION		"1.0.0.6"
+#define EXITIMER_VERSION		"1.0.0.7"

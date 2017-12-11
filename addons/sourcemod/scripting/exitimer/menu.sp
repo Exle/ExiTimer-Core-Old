@@ -53,7 +53,8 @@ void ExiMenu_AskPluginLoad2()
 
 void ExiMenu_OnPluginStart()
 {
-	ExiMenu[MENUADMIN] = ExiMenu[MENUCLIENT] = new ArrayList();
+	ExiMenu[MENUADMIN] = new ArrayList();
+	ExiMenu[MENUCLIENT] = new ArrayList();
 
 	ExiForward_OnAdminMenuReady		= CreateGlobalForward("ExiTimer_OnAdminMenuReady",	ET_Ignore);
 	ExiForward_OnClientMenuReady	= CreateGlobalForward("ExiTimer_OnClientMenuReady",	ET_Ignore);
@@ -77,7 +78,7 @@ public void OnAllPluginsLoaded()
 	Call_Finish();
 }
 
-bool ExiMenu_AddMenuItem(int type, Handle plugin, Function callback, Function display_callback, const char[] name)
+int ExiMenu_AddMenuItem(int type, Handle plugin, Function callback, Function display_callback, const char[] name)
 {
 	DataPack dp = new DataPack();
 
@@ -86,7 +87,7 @@ bool ExiMenu_AddMenuItem(int type, Handle plugin, Function callback, Function di
 	dp.WriteFunction(display_callback);
 	dp.WriteString(name);
 
-	return view_as<bool>(ExiMenu[type].Push(dp));
+	return ExiMenu[type].Push(dp);
 }
 
 int ExiMenu_FindCopy(ArrayList array, Handle plugin, char[] str)
@@ -99,10 +100,10 @@ int ExiMenu_FindCopy(ArrayList array, Handle plugin, char[] str)
 	{
 		(dp = array.Get(i)).Reset();
 		plugin_Handle = dp.ReadCell();
-		dp.Position = view_as<DataPackPos>(4);
+		dp.ReadFunction();dp.ReadFunction();
 		dp.ReadString(buffer, 64);
 
-		if (plugin == plugin_Handle && strcmp(str, buffer) == 0)
+		if (plugin == plugin_Handle && !strcmp(str, buffer))
 		{
 			return i;
 		}
@@ -113,18 +114,21 @@ int ExiMenu_FindCopy(ArrayList array, Handle plugin, char[] str)
 
 void ExiMenu_ReDisplayMenu(int menuid, int client)
 {
-	if (ExiMenu[menuid].Length == 0)
+	if (menuid && !ExiMenu[menuid].Length)
 	{
-		ReplyToCommand(client, "%s %t", ExiVar_ChatPrefix, "Empty Menu");
+		ExiChat_Message(client, "%s %t", ExiVar_ChatPrefix, "Empty Menu");
 		return;
 	}
 
 	Menu menu = new Menu(ExiMenu_Handle);
-	menu.SetTitle("%T", !menuid ? "Timer Management" : "Timer Settings", client);
+	menu.SetTitle("%T", !menuid ? "Timer Commands" : "Timer Settings", client);
 
 	char buffer[128], id[16];
-	FormatEx(buffer, 128, "%T", ExiVar_Enabled ? "Disable" : "Enable", client);
-	menu.AddItem("a", buffer);
+	if (!menuid)
+	{
+		FormatEx(buffer, 128, "%T", ExiVar_Enabled ? "Disable" : "Enable", client);
+		menu.AddItem("a", buffer);
+	}
 
 	DataPack dp;
 	Handle plugin;
@@ -197,7 +201,6 @@ public int ExiMenu_Handle(Menu menu, MenuAction action, int param1, int param2)
 bool ExiMenu_GetDisplayItem(Handle plugin, Function display_callback, int client, const char[] name, char[] buffer, int maxlen)
 {
 	bool result = false;
-	buffer[0] = '\0';
 
 	if (plugin != null && display_callback != INVALID_FUNCTION)
 	{
@@ -261,7 +264,7 @@ public int Native_AddToClientMenu(Handle plugin, int numParams)
 		return -1;
 	}
 
-	return ExiMenu_AddMenuItem(MENUADMIN, plugin, GetNativeCell(2), GetNativeCell(3), name);
+	return ExiMenu_AddMenuItem(MENUCLIENT, plugin, GetNativeCell(2), GetNativeCell(3), name);
 }
 
 public int Native_UnRegisterMe(Handle plugin, int numParams)

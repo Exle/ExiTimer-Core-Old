@@ -30,29 +30,15 @@
  * Version: $Id$
  */
 
-#if defined exitimer_menu_included
+#if defined exitimer_chat_included
 	#endinput
 #endif
-#define _exitimer_menu_included
+#define _exitimer_chat_included
 
-typedef DisplayCallBack = function void(int client, const char[] name, char[] buffer, int maxlength);
-typedef ItemCallBack = function void(int client, const char[] name);
+native void ExiTimer_Message(int client, const char[] format, any ...);
+native void ExiTimer_MessageAll(const char[] format, any ...);
 
-forward void ExiTimer_OnAdminMenuReady();
-forward void ExiTimer_OnClientMenuReady();
-
-native void ExiTimer_ReDisplayAdminMenu(int client);
-native void ExiTimer_ReDisplayClientMenu(int client);
-
-native int ExiTimer_AddToAdminMenu(const char[] name, ItemCallBack callback, DisplayCallBack display_callback);
-native int ExiTimer_AddToClientMenu(const char[] name, ItemCallBack callback, DisplayCallBack display_callback);
-
-native bool ExiTimer_AddedToAdminMenu(const char[] name);
-native bool ExiTimer_AddedToClientMenu(const char[] name);
-
-native void ExiTimer_UnRegisterMe();
-
-public SharedPlugin __pl_exitimer_menu = 
+public SharedPlugin __pl_exitimer_chat = 
 {
 	name = "exitimer",
 	file = "exitimer.smx",
@@ -64,14 +50,9 @@ public SharedPlugin __pl_exitimer_menu =
 };
 
 #if !defined REQUIRE_PLUGIN
-public __pl_exitimer_menu_SetNTVOptional()
+public __pl_exitimer_chat_SetNTVOptional()
 {
-	MarkNativeAsOptional("ExiTimer_ReDisplayAdminMenu");
-	MarkNativeAsOptional("ExiTimer_ReDisplayClientMenu");
-	MarkNativeAsOptional("ExiTimer_AddToAdminMenu");
-	MarkNativeAsOptional("ExiTimer_AddToClientMenu");
-	MarkNativeAsOptional("ExiTimer_AddedToAdminMenu");
-	MarkNativeAsOptional("ExiTimer_AddedToClientMenu");
-	MarkNativeAsOptional("ExiTimer_UnRegisterMe");
+	MarkNativeAsOptional("ExiTimer_Message");
+	MarkNativeAsOptional("ExiTimer_MessageAll");
 }
 #endif

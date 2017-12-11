@@ -49,6 +49,9 @@ Handle	ExiForward_OnStart,
 		ExiForward_OnEnd,
 		ExiForward_OnChangeState;
 
+EngineVersion ExiVar_Engine;
+
+#include "exitimer/chat.sp"
 #include "exitimer/map.sp"
 #include "exitimer/db.sp"
 #include "exitimer/configs.sp"
@@ -75,6 +78,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("ExiTimer_GetDirectory",	Native_GetDirectory);
 	CreateNative("ExiTimer_GetChatPrefix",	Native_GetChatPrefix);
 
+	ExiChat_AskPluginLoad2();
 	ExiConfigs_AskPluginLoad2();
 	ExiDB_AskPluginLoad2();
 	ExiLog_AskPluginLoad2();
@@ -83,6 +87,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	ExiPlayer_AskPluginLoad2();
 
 	RegPluginLibrary("exitimer");
+
+	ExiVar_Engine = GetEngineVersion();
 	return APLRes_Success;
 }
 

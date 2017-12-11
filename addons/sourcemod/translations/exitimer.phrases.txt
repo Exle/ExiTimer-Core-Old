@@ -1,12 +1,12 @@
 "Phrases"
 {
-	"Timer Management"
+	"Timer Commands"
 	{
         "en"	"Timer Commands"
 		"ru"	"Управление таймером"
 	}
 
-	"Timer_Settings"
+	"Timer Settings"
 	{
         "en"	"Timer settings"
 		"ru"	"Настройки таймера"
