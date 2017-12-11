@@ -114,16 +114,16 @@ public void OnPluginStart()
 
 public void OnPluginEnd()
 {
-	delete ExiForward_OnStart;
-	delete ExiForward_OnEnd;
-	delete ExiForward_OnChangeState;
+	ExiFunctions_State(false);
 
 	ExiDB_OnPluginEnd();
 	ExiMap_OnPluginEnd();
 	ExiMenu_OnPluginEnd();
 	ExiPlayer_OnPluginEnd();
 
-	ExiFunctions_State(false);
+	delete ExiForward_OnStart;
+	delete ExiForward_OnEnd;
+	delete ExiForward_OnChangeState;
 }
 
 public void OnMapStart()
