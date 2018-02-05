@@ -31,7 +31,6 @@
  * Version: $Id$
  */
 
-
 void ExiLog_AskPluginLoad2()
 {
 	CreateNative("ExiTimer_Log",		NativeLog_Log);

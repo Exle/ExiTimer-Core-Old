@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 03.12.2017
+ * Date of update: 05.02.2018
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -43,7 +43,6 @@ native bool ExiTimer_IsStarted();
 native bool ExiTimer_IsEnabled();
 native void ExiTimer_SetState(bool state);
 native int ExiTimer_GetDirectory(const char[] name, char[] buffer, int maxlength);
-native int ExiTimer_GetChatPrefix(char[] buffer, int maxlength);
 
 public SharedPlugin __pl_exitimer_core = 
 {

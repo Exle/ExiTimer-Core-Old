@@ -43,6 +43,6 @@
 #define EXITIMER_V_MAJOR		1
 #define EXITIMER_V_MINOR		0
 #define EXITIMER_V_RELEASE		0
-#define EXITIMER_V_REV	    	8
+#define EXITIMER_V_REV	    	9
 
-#define EXITIMER_VERSION		"1.0.0.8"
+#define EXITIMER_VERSION		"1.0.0.9"

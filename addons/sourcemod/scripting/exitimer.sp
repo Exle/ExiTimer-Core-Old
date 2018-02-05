@@ -76,15 +76,14 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("ExiTimer_IsEnabled",		Native_Enabled);
 	CreateNative("ExiTimer_SetState",		Native_SetState);
 	CreateNative("ExiTimer_GetDirectory",	Native_GetDirectory);
-	CreateNative("ExiTimer_GetChatPrefix",	Native_GetChatPrefix);
 
-	ExiChat_AskPluginLoad2();
 	ExiConfigs_AskPluginLoad2();
 	ExiDB_AskPluginLoad2();
 	ExiLog_AskPluginLoad2();
 	ExiMap_AskPluginLoad2();
 	ExiMenu_AskPluginLoad2();
 	ExiPlayer_AskPluginLoad2();
+	ExiChat_AskPluginLoad2();
 
 	RegPluginLibrary("exitimer");
 
@@ -97,9 +96,6 @@ public void OnPluginStart()
 	LoadTranslations("exitimer.phrases");
 	CreateDirectories();
 
-	RegConsoleCmd("sm_timer", ConCmd_ClientTimer);
-	RegAdminCmd("sm_admintimer", ConCmd_AdminTimer, ADMFLAG_RCON);
-
 	ExiForward_OnStart	= CreateGlobalForward("ExiTimer_OnStart",	ET_Ignore);
 	ExiForward_OnEnd	= CreateGlobalForward("ExiTimer_OnEnd",		ET_Ignore);
 
@@ -110,20 +106,12 @@ public void OnPluginStart()
 	ExiMap_OnPluginStart();
 	ExiMenu_OnPluginStart();
 	ExiPlayer_OnPluginStart();
+	ExiChat_OnPluginStart();
 }
 
 public void OnPluginEnd()
 {
 	ExiFunctions_State(false);
-
-	ExiDB_OnPluginEnd();
-	ExiMap_OnPluginEnd();
-	ExiMenu_OnPluginEnd();
-	ExiPlayer_OnPluginEnd();
-
-	delete ExiForward_OnStart;
-	delete ExiForward_OnEnd;
-	delete ExiForward_OnChangeState;
 }
 
 public void OnMapStart()
@@ -143,6 +131,76 @@ public void OnMapEnd()
 {
 	ExiMap_OnMapEnd();
 }
+
+void OnConfigLoaded()
+{
+	{
+		ArrayList cmd = new ArrayList(ByteCountToCells(64));
+		char buffer[256];
+		if (ExiConfigs_GetConfigParam("clientmenu_cmd", buffer, 256) && buffer[0])
+		{
+			for (int i, length = ExplodeStringArray(cmd, buffer, ';'); i < length; ++i)
+			{
+				cmd.GetString(i, buffer, 256);
+				RegConsoleCmd(buffer, ConCmd_ClientTimer);
+			}
+		}
+
+		if (ExiConfigs_GetConfigParam("adminmenu_flag", buffer, 256) && buffer[0])
+		{
+			int flags = ReadFlagString(buffer);
+			ExiConfigs_GetConfigParam("adminmenu_cmd", buffer, 256);
+			for (int i, length = ExplodeStringArray(cmd, buffer, ';'); i < length; ++i)
+			{
+				cmd.GetString(i, buffer, 256);
+				RegAdminCmd(buffer, ConCmd_AdminTimer, flags);
+			}
+			
+		}
+
+		delete cmd;
+	}
+
+	Call_StartForward(ExiForward_OnConfigLoaded);
+	Call_PushCell(ExiArray_Configs.Size);
+	Call_Finish();
+}
+
+//-----------------------------------------------------------------------------
+// Helper: Explode string and write to arraylist, split by char
+//-----------------------------------------------------------------------------
+int ExplodeStringArray(ArrayList &array, char[] string, int c)
+{
+	array.Clear();
+
+	int count = CountCharInString(string, c) + 1;
+	char[][] part = new char[count][64];
+
+	count = ExplodeString(string, ";", part, count, 64);
+	for (int i; i < count; ++i)
+	{
+		array.PushString(part[i]);
+	}
+
+	return count;
+}
+
+//-----------------------------------------------------------------------------
+// Helper: Counting char int string
+//-----------------------------------------------------------------------------
+int CountCharInString(const char[] string, int c)
+{
+	int count;
+	for (int i; i < strlen(string); ++i)
+	{
+		if (string[i] == c)
+		{
+			count++;
+		}
+	}
+
+    return count;
+}  
 
 // NATIVES
 public int Native_Started(Handle plugin, int numParams)
@@ -167,10 +225,4 @@ public int Native_GetDirectory(Handle plugin, int numParams)
 	int cells = BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, DIR ... "%s", buffer);
 	SetNativeString(2, buffer, GetNativeCell(3));
 	return cells;
-}
-
-public int Native_GetChatPrefix(Handle plugin, int numParams)
-{
-	SetNativeString(1, ExiVar_ChatPrefix, GetNativeCell(2));
-	return strlen(ExiVar_ChatPrefix);
 }

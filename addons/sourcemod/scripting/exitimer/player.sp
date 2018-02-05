@@ -63,15 +63,6 @@ void ExiPlayer_OnPluginStart()
 	ExiForward_OnClientUnPaused		= CreateGlobalForward("ExiTimer_OnClientUnPaused",		ET_Ignore,	Param_Cell, Param_Float, Param_Float);
 }
 
-void ExiPlayer_OnPluginEnd()
-{
-	delete ExiForward_OnClientStarted;
-	delete ExiForward_OnClientPreFinished;
-	delete ExiForward_OnClientFinished;
-	delete ExiForward_OnClientPaused;
-	delete ExiForward_OnClientUnPaused;
-}
-
 public void OnClientPutInServer(int client)
 {
 	player[client][Player_Time] = player[client][Player_Pause] = -1.0;

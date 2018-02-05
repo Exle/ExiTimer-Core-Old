@@ -31,12 +31,21 @@
  * Version: $Id$
  */
 
-#define MAX_BUFFER_LENGTH	(256 * 4)
+#define MAX_BUFFER_LENGTH	1024
+
+Handle ExiForward_OnSendMessage,
+	ExiForward_OnSendMessagePost;
 
 void ExiChat_AskPluginLoad2()
 {
 	CreateNative("ExiTimer_Message",	Native_Message);
 	CreateNative("ExiTimer_MessageAll",	Native_MessageAll);
+}
+
+void ExiChat_OnPluginStart()
+{
+	ExiForward_OnSendMessage		= CreateGlobalForward("ExiTimer_OnSendMessage",		ET_Hook, Param_Cell, Param_String, Param_String, Param_Cell);
+	ExiForward_OnSendMessagePost	= CreateGlobalForward("ExiTimer_OnSendMessagePost",	ET_Ignore, Param_Cell, Param_String, Param_Cell);
 }
 
 void ExiChat_Message(int client, const char[] format, any ...)
@@ -56,9 +65,35 @@ void ExiChat_Message(int client, const char[] format, any ...)
 
 void ExiChat_SendMessage(int client, char[] message, int author = 0)
 {
-	if (author == 0)
+	if (!author)
 	{
 		author = client;
+	}
+
+	{
+		char buffer[MAX_BUFFER_LENGTH];
+
+		Action results;
+		Call_StartForward(ExiForward_OnSendMessage);
+		Call_PushCell(client);
+		Call_PushString(message);
+		Call_PushStringEx(buffer, MAX_BUFFER_LENGTH, SM_PARAM_STRING_UTF8|SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
+		Call_PushCell(author);
+		int error = Call_Finish(results);
+
+		if (error != SP_ERROR_NONE)
+		{
+			ThrowNativeError(error, "[ExiChat] Error forward \'ExiTimer_OnSendMessage\'");
+			return;
+		}
+		else if (results == Plugin_Changed)
+		{
+			strcopy(message, MAX_BUFFER_LENGTH, buffer);
+		}
+		else if (results == Plugin_Stop || results == Plugin_Handled)
+		{
+			return;
+		}
 	}
 
 	Format(message, MAX_BUFFER_LENGTH, "%s\x01%s", ExiVar_Engine == Engine_CSGO ? " " : "", message);
@@ -93,6 +128,12 @@ void ExiChat_SendMessage(int client, char[] message, int author = 0)
 	}
 
 	EndMessage();
+
+	Call_StartForward(ExiForward_OnSendMessagePost);
+	Call_PushCell(client);
+	Call_PushString(message);
+	Call_PushCell(author);
+	Call_Finish();
 }
 
 // NATIVES

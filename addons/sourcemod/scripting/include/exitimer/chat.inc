@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 11.12.2017
+ * Date of update: 05.02.2018
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -34,6 +34,9 @@
 	#endinput
 #endif
 #define _exitimer_chat_included
+
+forward Action ExiTimer_OnSendMessage(int client, const char[] message, char[1024] buffer, int autor);
+forward void ExiTimer_OnSendMessagePost(int client, const char[] message, int autor);
 
 native void ExiTimer_Message(int client, const char[] format, any ...);
 native void ExiTimer_MessageAll(const char[] format, any ...);

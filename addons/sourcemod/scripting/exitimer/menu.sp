@@ -60,15 +60,6 @@ void ExiMenu_OnPluginStart()
 	ExiForward_OnClientMenuReady	= CreateGlobalForward("ExiTimer_OnClientMenuReady",	ET_Ignore);
 }
 
-void ExiMenu_OnPluginEnd()
-{
-	delete ExiMenu[MENUADMIN];
-	delete ExiMenu[MENUCLIENT];
-
-	delete ExiForward_OnAdminMenuReady;
-	delete ExiForward_OnClientMenuReady;
-}
-
 public void OnAllPluginsLoaded()
 {
 	Call_StartForward(ExiForward_OnAdminMenuReady);

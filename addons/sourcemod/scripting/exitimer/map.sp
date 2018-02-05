@@ -52,12 +52,6 @@ void ExiMap_OnPluginStart()
 	ExiForward_OnMapEnd		= CreateGlobalForward("ExiTimer_OnMapEnd",		ET_Ignore, Param_Cell, Param_String);
 }
 
-void ExiMap_OnPluginEnd()
-{
-	delete ExiForward_OnMapStart;
-	delete ExiForward_OnMapEnd;
-}
-
 void ExiMap_OnMapStart()
 {
 	if (ExiVar_Started && !ExiVar_MapStarted)

@@ -31,12 +31,11 @@
  * Version: $Id$
  */
 
-#define TABLE_MAP_MYSQL		"CREATE TABLE IF NOT EXISTS %smaps (id int(8) NOT NULL AUTO_INCREMENT, name varchar(64) NOT NULL UNIQUE, state bit NOT NULL DEFAULT 1, PRIMARY KEY (id), UNIQUE KEY (name)) ENGINE=MyISAM DEFAULT CHARSET=utf8;"
-#define TABLE_MAP_SQLITE	"CREATE TABLE IF NOT EXISTS %smaps (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR NOT NULL UNIQUE, state BIT NOT NULL DEFAULT 1);"
+#define TABLE_MAP_MYSQL 	"CREATE TABLE IF NOT EXISTS %smaps (id int(8) NOT NULL AUTO_INCREMENT, name varchar(64) NOT NULL UNIQUE, state bit NOT NULL DEFAULT 1, PRIMARY KEY (id), UNIQUE KEY (name)) ENGINE=MyISAM DEFAULT CHARSET=utf8;"
+#define TABLE_MAP_SQLITE 	"CREATE TABLE IF NOT EXISTS %smaps (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name VARCHAR NOT NULL UNIQUE, state BIT NOT NULL DEFAULT 1);"
 
 Database ExiDB;
 ExiTimerDB_Type ExiDB_Type;
-char ExiVar_DBPrefix[16] = "et_";
 
 Handle	ExiForward_OnDBReConnect;
 
@@ -53,16 +52,11 @@ void ExiDB_OnPluginStart()
 	ExiDB_PreConnect();
 }
 
-void ExiDB_OnPluginEnd()
-{
-	delete ExiForward_OnDBReConnect;
-}
-
 void ExiDB_PreConnect()
 {
 	if (ExiDB != null)
 	{
-		return;
+		delete ExiDB;
 	}
 
 	if (SQL_CheckConfig("exitimer"))
@@ -127,8 +121,9 @@ void ExiDB_GetType()
 
 void ExiDB_CreateTables(Database db)
 {
-	char query[256];
-	FormatEx(query, 256, ExiDB_Type == ExiTimerDB_MySQL ? TABLE_MAP_MYSQL : TABLE_MAP_SQLITE, ExiVar_DBPrefix);
+	char query[256], prefix[16];
+	ExiConfigs_GetConfigParam("db_prefix", prefix, 16);
+	FormatEx(query, 256, ExiDB_Type == ExiTimerDB_MySQL ? TABLE_MAP_MYSQL : TABLE_MAP_SQLITE, prefix);
 	db.Query(ExiDB_CreateTablesCallback, query, 1, DBPrio_High);
 }
 
@@ -169,55 +164,46 @@ void ExiDB_OnMapStart()
 		return;
 	}
 
-	int tmp = 2 * strlen(ExiVar_MapName) + 1;
-	char[] smap = new char[tmp];
-	ExiDB.Escape(ExiVar_MapName, smap, tmp);
+	char query[128], prefix[16];
+	ExiConfigs_GetConfigParam("db_prefix", prefix, 16);
+	FormatEx(query, 128, "INSERT %sIGNORE INTO %smaps (name) VALUES ('%s');", ExiDB_Type == ExiTimerDB_MySQL ? "" : "OR ", prefix, ExiVar_MapName);
 
-	char query[256];
-	FormatEx(query, 256, "SELECT id, state FROM %smaps WHERE name = '%s';", ExiVar_DBPrefix, smap);
-
-	ExiDB.Query(ExiDB_OnMapStartCallback, query);
+	ExiDB.Query(ExiDB_OnMapStartInsert, query, 0);
 }
 
-public void ExiDB_OnMapStartCallback(Database db, DBResultSet results, const char[] error, any param)
+public void ExiDB_OnMapStartInsert(Database db, DBResultSet results, const char[] error, any data)
 {
+	if (!ExiDB_CheckErrorDB(db, error, data))
+	{
+		return;
+	}
+
+	char query[256], prefix[16];
+	ExiConfigs_GetConfigParam("db_prefix", prefix, 16);
+	FormatEx(query, 256, "SELECT id, state FROM %smaps WHERE name = '%s';", prefix, ExiVar_MapName);
+	db.Query(ExiDB_OnMapStartSelect, query, 0);
+}
+
+public void ExiDB_OnMapStartSelect(Database db, DBResultSet results, const char[] error, any data)
+{
+	if (!ExiDB_CheckErrorDB(db, error, data))
+	{
+		return;
+	}
+
 	if (results.HasResults && results.FetchRow())
 	{
 		ExiVar_MapId = results.FetchInt(0);
 		ExiFunctions_TimerState(view_as<bool>(results.FetchInt(1)));
 		ExiFunctions_MapState();
 	}
-	else
-	{
-		char query[256];
-
-		FormatEx(query, 256, "INSERT INTO %smaps (name) VALUES ('%s');", ExiVar_DBPrefix, ExiVar_MapName);
-		db.Query(ExiDB_OnMapStartInsertCallback, query);
-	}
-}
-
-public void ExiDB_OnMapStartInsertCallback(Database db, DBResultSet results, const char[] error, any data)
-{
-	if (db == null || error[0])
-	{
-		if (db == null)
-		{
-			ExiDB_PreReconnectTimer(0, "Database INVALID HANDLE");
-			return;
-		}
-
-		LogError("[DB] Error [data %d]: %s", data, error);
-		ExiLog_Write(true, "[DB] Error [data %d]: %s", data, error);
-		return;
-	}
-
-	ExiDB_OnMapStart();
 }
 
 void ExiDB_ChangeState(bool state)
 {
-	char query[256];
-	FormatEx(query, 256, "UPDATE %smaps SET state = %d WHERE id = %d;", ExiVar_DBPrefix, state, ExiVar_MapId);
+	char query[256], prefix[16];
+	ExiConfigs_GetConfigParam("db_prefix", prefix, 16);
+	FormatEx(query, 256, "UPDATE %smaps SET state = %d WHERE id = %d;", prefix, state, ExiVar_MapId);
 	ExiDB_TQueryEx(query);
 }
 
@@ -240,6 +226,24 @@ public void ExiDB_ErrorCheck(Database db, DBResultSet results, const char[] erro
 	}
 }
 
+bool ExiDB_CheckErrorDB(Database db, const char[] error, any data)
+{
+	if (db == null || error[0])
+	{
+		if (db == null)
+		{
+			ExiDB_PreReconnectTimer(data, "Database INVALID HANDLE");
+			return false;
+		}
+
+		LogError("[DB] Error [data %d]: %s", data, error);
+		ExiLog_Write(true, "[DB] Error [data %d]: %s", data, error);
+		return false;
+	}
+
+	return true;
+}
+
 // NATIVES
 public int NativeDB_GetDatabase(Handle plugin, int numParams)
 {
@@ -253,6 +257,8 @@ public int NativeDB_GetDatabaseType(Handle plugin, int numParams)
 
 public int NativeDB_GetDatabasePrefix(Handle plugin, int numParams)
 {
-	SetNativeString(1, ExiVar_DBPrefix, GetNativeCell(2));
-	return strlen(ExiVar_DBPrefix);
+	char prefix[16];
+	ExiConfigs_GetConfigParam("db_prefix", prefix, 16);
+	SetNativeString(1, prefix, GetNativeCell(2));
+	return strlen(prefix);
 }
