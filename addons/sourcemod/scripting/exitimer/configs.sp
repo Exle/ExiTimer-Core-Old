@@ -45,30 +45,43 @@ void ExiConfigs_OnPluginStart()
 {
 	ExiArray_Configs = new StringMap();
 	ExiForward_OnConfigLoaded = CreateGlobalForward("ExiTimer_OnConfigLoaded",	ET_Ignore, Param_Cell);
-	ExiConfigs_PreLoadConfiguration();
+	ExiConfigs_PreLoadConfiguration("core");
+	ExiConfigs_AutoLoader();
 }
 
-void ExiConfigs_PreLoadConfiguration()
+bool ExiConfigs_PreLoadConfiguration(const char[] name, bool critical = true)
 {
 	char buffer[PLATFORM_MAX_PATH];
-	if (!ExiConfigs_GetConfigFile("core", buffer, PLATFORM_MAX_PATH) || !FileExists(buffer) || !ExiConfigs_LoadConfiguration(buffer))
+	if (!ExiConfigs_GetConfigFile(name, buffer, PLATFORM_MAX_PATH) || !FileExists(buffer) || !ExiConfigs_LoadConfiguration(buffer, critical))
 	{
 		ExiLog_Write(true, "[ExiConfigs] Error parse in \'%s\'", buffer);
-		SetFailState("[ExiConfigs] Error parse in \'%s\'", buffer);
+		if (critical)
+		{
+			SetFailState("[ExiConfigs] Error parse in \'%s\'", buffer);
+			return false;
+		}
 	}
 
-	OnConfigLoaded();
+	if (critical)
+	{
+		OnConfigLoaded();
+	}
+
+	return true;
 }
 
 int ExiConfigs_GetConfigFile(const char[] name, char[] buffer, int maxlength)
 {
-	return BuildPath(Path_SM, buffer, maxlength, "%sconfigs/%s.exitimer.cfg", DIR, name);
+	return BuildPath(Path_SM, buffer, maxlength, "%s/configs/%s.exitimer.cfg", DIR, name);
 }
 
-bool ExiConfigs_LoadConfiguration(const char[] path)
+bool ExiConfigs_LoadConfiguration(const char[] path, bool reset = false)
 {
 	SMCParser smc		= new SMCParser();
-	smc.OnStart			= ExiSMC_OnStart;
+	if (reset)
+	{
+		smc.OnStart			= ExiSMC_OnStart;
+	}
 	smc.OnKeyValue		= ExiSMC_OnKeyValue;
 
 	int line, col;
@@ -91,12 +104,38 @@ public void ExiSMC_OnStart(SMCParser smc)
 
 public SMCResult ExiSMC_OnKeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
 {
-	ExiArray_Configs.SetString(key, value);
+	ExiArray_Configs.SetString(key, value, true);
 }
 
 int ExiConfigs_GetConfigParam(const char[] key, char[] buffer, int maxlength)
 {
 	return ExiArray_Configs.GetString(key, buffer, maxlength);
+}
+
+void ExiConfigs_AutoLoader()
+{
+	char path[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, path, PLATFORM_MAX_PATH, DIR ... "/configs/autoload");
+	if (!DirExists(path))
+	{
+		CreateDirectory(path, 755);
+		return;
+	}
+
+	char buffer[PLATFORM_MAX_PATH];
+	FileType type;
+	DirectoryListing dl = OpenDirectory(path);
+	while (dl.GetNext(buffer, PLATFORM_MAX_PATH, type))
+	{
+		if (type == FileType_File)
+		{
+			SplitString(buffer, ".", buffer, PLATFORM_MAX_PATH);
+			Format(buffer, PLATFORM_MAX_PATH, "autoload/%s", buffer);
+			ExiConfigs_PreLoadConfiguration(buffer, false);
+		}
+	}
+
+	delete dl;
 }
 
 // NATIVES

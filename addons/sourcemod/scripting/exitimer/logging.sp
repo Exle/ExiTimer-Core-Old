@@ -43,7 +43,7 @@ void ExiLog_Write(bool error = false, const char[] format, any ...)
 		ExiVar_LogPath[PLATFORM_MAX_PATH];
 
 	FormatTime(buffer, 512, "%d.%m.%Y.log");
-	BuildPath(Path_SM, ExiVar_LogPath, PLATFORM_MAX_PATH, DIR ... "logs/%s_%s", error ? "error" : "log", buffer);
+	BuildPath(Path_SM, ExiVar_LogPath, PLATFORM_MAX_PATH, DIR ... "/logs/%s_%s", error ? "error" : "log", buffer);
 
 	VFormat(buffer, 512, format, 3);
 	LogToFile(ExiVar_LogPath, buffer);

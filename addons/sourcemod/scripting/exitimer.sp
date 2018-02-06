@@ -39,7 +39,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define DIR "data/exitimer/"
+#define DIR "data/exitimer"
 
 bool ExiVar_Started, ExiVar_Enabled;
 
@@ -111,6 +111,7 @@ public void OnPluginStart()
 
 public void OnPluginEnd()
 {
+	// Notify plugins about the end of the plug-in
 	ExiFunctions_State(false);
 }
 
@@ -123,8 +124,8 @@ public void OnMapStart()
 void CreateDirectories()
 {
 	ExiFunctions_CreateDir("");
-	ExiFunctions_CreateDir("configs");
-	ExiFunctions_CreateDir("logs");
+	ExiFunctions_CreateDir("/configs");
+	ExiFunctions_CreateDir("/logs");
 }
 
 public void OnMapEnd()
@@ -132,6 +133,9 @@ public void OnMapEnd()
 	ExiMap_OnMapEnd();
 }
 
+//-----------------------------------------------------------------------------
+// Function for registration cmd, called the forward
+//-----------------------------------------------------------------------------
 void OnConfigLoaded()
 {
 	{
@@ -167,7 +171,7 @@ void OnConfigLoaded()
 }
 
 //-----------------------------------------------------------------------------
-// Helper: Explode string and write to arraylist, split by char
+// Helper: Breaks a string into pieces and stores each piece into an arraylist
 //-----------------------------------------------------------------------------
 int ExplodeStringArray(ArrayList &array, char[] string, int c)
 {
@@ -200,24 +204,40 @@ int CountCharInString(const char[] string, int c)
 	}
 
     return count;
-}  
+}
 
+
+//-----------------------------------------------------------------------------
 // NATIVES
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Native: bool ExiTimer_IsStarted();
+//-----------------------------------------------------------------------------
 public int Native_Started(Handle plugin, int numParams)
 {
 	return ExiVar_Started;
 }
 
+//-----------------------------------------------------------------------------
+// Native: bool ExiTimer_IsEnabled();
+//-----------------------------------------------------------------------------
 public int Native_Enabled(Handle plugin, int numParams)
 {
 	return ExiVar_Enabled;
 }
 
+//-----------------------------------------------------------------------------
+// Native: void ExiTimer_SetState(bool state);
+//-----------------------------------------------------------------------------
 public int Native_SetState(Handle plugin, int numParams)
 {
 	ExiFunctions_TimerState(view_as<bool>(GetNativeCell(1)));
 }
 
+//-----------------------------------------------------------------------------
+// Native: int ExiTimer_GetDirectory(const char[] name, char[] buffer, int maxlength);
+//-----------------------------------------------------------------------------
 public int Native_GetDirectory(Handle plugin, int numParams)
 {
 	char buffer[PLATFORM_MAX_PATH];
