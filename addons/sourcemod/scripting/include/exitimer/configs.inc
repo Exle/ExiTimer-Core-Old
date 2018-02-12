@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 05.02.2018
+ * Date of update: 12.02.2018
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -37,7 +37,6 @@
 
 forward void ExiTimer_OnConfigLoaded(int params_count);
 
-native int ExiTimer_GetConfigFile(const char[] name, char[] buffer, int maxlength);
 native int ExiTimer_GetConfigParam(const char[] key, char[] buffer, int maxlength);
 
 public SharedPlugin __pl_exitimer_configs = 
@@ -54,7 +53,6 @@ public SharedPlugin __pl_exitimer_configs =
 #if !defined REQUIRE_PLUGIN
 public __pl_exitimer_configs_SetNTVOptional()
 {
-	MarkNativeAsOptional("ExiTimer_GetConfigFile");
 	MarkNativeAsOptional("ExiTimer_GetConfigParam");
 }
 #endif

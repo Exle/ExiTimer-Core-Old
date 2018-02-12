@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 07.02.2018
+ * Date of update: 12.02.2018
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -43,6 +43,6 @@
 #define EXITIMER_V_MAJOR		1
 #define EXITIMER_V_MINOR		0
 #define EXITIMER_V_RELEASE		0
-#define EXITIMER_V_REV	    	10
+#define EXITIMER_V_REV	    	11
 
-#define EXITIMER_VERSION		"1.0.0.10"
+#define EXITIMER_VERSION		"1.0.0.11"

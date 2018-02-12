@@ -35,6 +35,7 @@ public Action ConCmd_ClientTimer(int client, int args)
 {
 	if (!client || !IsClientInGame(client))
 	{
+		ReplyToCommand(client, "%t", "Command is in-game only");
 		return Plugin_Continue;
 	}
 
@@ -46,6 +47,7 @@ public Action ConCmd_AdminTimer(int client, int args)
 {
 	if (!client || !IsClientInGame(client))
 	{
+		ReplyToCommand(client, "%t", "Command is in-game only");
 		return Plugin_Continue;
 	}
 

@@ -1,6 +1,6 @@
 /**
  * =============================================================================
- * Date of update: 05.02.2018
+ * Date of update: 12.02.2018
  * Author: Exle / http://steamcommunity.com/profiles/76561198013509278/
  * =============================================================================
  *
@@ -42,7 +42,7 @@ forward void ExiTimer_OnChangeState(bool state);
 native bool ExiTimer_IsStarted();
 native bool ExiTimer_IsEnabled();
 native void ExiTimer_SetState(bool state);
-native int ExiTimer_GetDirectory(const char[] name, char[] buffer, int maxlength);
+native int ExiTimer_GetPath(const char[] name, char[] buffer, int maxlength);
 
 public SharedPlugin __pl_exitimer_core = 
 {

@@ -72,10 +72,10 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	CreateNative("ExiTimer_IsStarted",		Native_Started);
-	CreateNative("ExiTimer_IsEnabled",		Native_Enabled);
-	CreateNative("ExiTimer_SetState",		Native_SetState);
-	CreateNative("ExiTimer_GetDirectory",	Native_GetDirectory);
+	CreateNative("ExiTimer_IsStarted",	Native_Started);
+	CreateNative("ExiTimer_IsEnabled",	Native_Enabled);
+	CreateNative("ExiTimer_SetState",	Native_SetState);
+	CreateNative("ExiTimer_GetPath",	Native_GetPath);
 
 	ExiConfigs_AskPluginLoad2();
 	ExiDB_AskPluginLoad2();
@@ -93,6 +93,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public void OnPluginStart()
 {
+	LoadTranslations("common.phrases");
 	LoadTranslations("exitimer.phrases");
 	CreateDirectories();
 
@@ -134,7 +135,7 @@ public void OnMapEnd()
 }
 
 //-----------------------------------------------------------------------------
-// Function for registration cmd, called the forward
+// Function for registration cmd
 //-----------------------------------------------------------------------------
 void OnConfigLoaded()
 {
@@ -168,6 +169,11 @@ void OnConfigLoaded()
 	Call_StartForward(ExiForward_OnConfigLoaded);
 	Call_PushCell(ExiArray_Configs.Size);
 	Call_Finish();
+}
+
+public int GetPath(const char[] path, char[] buffer, int maxlength)
+{
+	return BuildPath(Path_SM, buffer, maxlength, DIR ... "%s%s", path[0] == '/' ? "" : "/", path);
 }
 
 //-----------------------------------------------------------------------------
@@ -236,13 +242,14 @@ public int Native_SetState(Handle plugin, int numParams)
 }
 
 //-----------------------------------------------------------------------------
-// Native: int ExiTimer_GetDirectory(const char[] name, char[] buffer, int maxlength);
+// Native: int ExiTimer_GetPath(const char[] name, char[] buffer, int maxlength);
 //-----------------------------------------------------------------------------
-public int Native_GetDirectory(Handle plugin, int numParams)
+public int Native_GetPath(Handle plugin, int numParams)
 {
-	char buffer[PLATFORM_MAX_PATH];
-	GetNativeString(1, buffer, PLATFORM_MAX_PATH);
-	int cells = BuildPath(Path_SM, buffer, PLATFORM_MAX_PATH, DIR ... "%s", buffer);
-	SetNativeString(2, buffer, GetNativeCell(3));
+	int length = GetNativeCell(3), cells;
+	char[] buffer = new char[length];
+	GetNativeString(1, buffer, length);
+	cells = GetPath(buffer, buffer, length);
+	SetNativeString(2, buffer, length);
 	return cells;
 }
